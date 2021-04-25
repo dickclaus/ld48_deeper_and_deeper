@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Chess deeper and deeper</title>
+    <link rel="stylesheet" href="css/chessboard-1.0.0.css" />
+    <link rel="stylesheet" href="css/main.css"/>
+</head>
+<body>
+    <div id="wrapper">
+        <h1 class="title">Ludum Dare 48 game</h1>
+        <cite>by Dmitry Bezverkhiy</cite>
+        <div>
+            <h2 class="level">Level 1</h2>
+            <p class="lore">
+                "The best way to learn solving geometry problems is to learn to compose your own!"
+            </p>
+            <strong class="citate">My geometry teacher</strong>
+            <p class="description">
+                With each level engine will go to analyze board deeper. Your goal is to create "Mate in <strong>X</strong> moves" problem.
+                After you done press  <i>go deeper</i>
+                <br></br>
+                How deep can you make engine go?
+            </p>
+        </div>
+        <div id="button-container">
+            <button id="startBtn">Go deeper</button>
+            <button id="clearBtn">Clear the board</button>
+            <button id="saveBtn">Save position</button>
+            <button id="loadBtn">Load position</button>
+            <button id="flipOrientationBtn">Flip orientation</button>
+            <div id="to-move">
+                <span>To Move</span>
+                <input id="white-move" type="radio" name="move" value="w" checked>
+                <label for="white-move">White</label>
+                <input id="black-move" type="radio" name="move" value="b">
+                <label for="black-move">Black</label>
+            </div>
+        </div>
+        <div class="congratulations">Congratulations: Mate in 1</div>
+        <div class="try-again">No mate in 1</div>
+        <div id="board" style="width: 400px"></div>
+        <div id="debug-info">
+            <h5>Evaluation</h5>
+            <pre id="evaluation"></pre>
+            <div id="engineStatus">...</div>
+        </div>
+    </div>
+
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script src="js/chess.min.js"></script>
+    <script src="js/chessboard-1.0.0.js"></script>
+    <script src="js/game.js"></script>
+    <script>
+        window.jQuery = window.$ = jQuery;
+        var wait_for_script = false;
+
+        /// We can load Stockfish.js via Web Workers or directly via a <script> tag.
+        /// Web Workers are better since they don't block the UI, but they are not always avaiable.
+        (function fix_workers()
+        {
+            /// Does the environment support web workers?  If not, include stockfish.js directly.
+            ///NOTE: Since web workers don't work when a page is loaded from the local system, we have to fake it there too. (Take that security measures!)
+            if (!Worker || (location && location.protocol === "file:")) {
+                var script_tag  = document.createElement("script");
+                script_tag.type ="text/javascript";
+                script_tag.src  = "stockfish.asm.js";
+                script_tag.onload = init;
+                document.getElementsByTagName("head")[0].appendChild(script_tag);
+                wait_for_script = true;
+                setTimeout(function ()
+                {
+                    console.warn("Loading this example from the file: protocol will load the slower asm.js engine.\nRun server.js and then load http://localhost:8080/ for the WASM engine.");
+                }, 3000);
+            }
+        }());
+        function init() {
+            var game = new ld48game();
+        }
+
+        /// If we load Stockfish.js via a <script> tag, we need to wait until it loads.
+        if (!wait_for_script) {
+            document.addEventListener("DOMContentLoaded", init);
+        }
+    </script>
+</body>
+</html>
